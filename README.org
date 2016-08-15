@@ -1,0 +1,60 @@
+* K-Y-S: Keep Your Session
+
+** Features
+
+- a session keeps your buffer and window information.
+- sessions are saved on disk, you can resume it at any time.
+- a session has a list of tags, you can manage your sessions with them.
+
+** Install
+
+Put the *kys.el* in your emacs' *load-path*. 
+
+Add following to your /.emacs/ file:
+
+#+BEGIN_SRC eamcs-lisp
+(require 'kys)
+; (setq kys-directory "~/.emacs.d/kys")
+(kys-init)
+; key-bindings
+(global-set-key "\M-sc" 'kys-session-commit)
+(global-set-key "\M-si" 'kys-session-init)
+(global-set-key "\M-sr" 'kys-session-reset)
+(global-set-key "\M-sd" 'kys-session-delete)
+(global-set-key "\M-sl" 'kys-session-list)
+(global-set-key "\M-sk" 'kys-session-kill)
+(global-set-key "\M-ss" 'kys-session)
+#+END_SRC
+
+The global variable *kys-directory* is the location for saving sessions.
+
+** Usage
+
+- Enter a session:
+  - Start a new session *kys-session-init*
+  - Switch to an existing session *kys-session-reset* (use *kys-session-list* to find all existing sessions)
+- Do some changes to buffers or windows
+- Save current session
+  - Just save *kys-session-commit*
+  - Save and kill session *kys-session-kill* (no session now)
+- or Switch session *kys-session-reset* (current session will be saved)
+- or Delete session *kys-session-delete* (delete a session, if it's current session, the session will be killed without saving)
+- or Show current session *kys-session*
+
+** To-do
+
+- [ ] filter by tags
+- [ ] more beatiful presentation of information
+- [ ] lock screen
+
+** About
+
+This package is developed by *hoverwinter*, you can find the repository on [[https://github.com/kys][Github]].
+
+Any questions or bugs, please go to the /issue/ or send an email.
+
+** License
+
+GPL License 3
+
+Copyright (C) hoverwinter 2016
