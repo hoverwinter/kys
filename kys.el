@@ -1,6 +1,7 @@
 ;;; kys.el --- Keep Your Session
 ;; Copyright (C) 2016-2016
 ;;               by hoverwinter <hoverwinter@gmail.com>
+;; Package-Requires: ((cl-lib "0.5"))
 
 ;; Introduction:
 ;;     This package provide the functionality that persists window & buffer
@@ -35,6 +36,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+(require 'cl-lib)
 
 ;; manage window tree info
 (defun kys-window-tree-to-list (tree)
@@ -69,7 +71,7 @@ from the second element of output from `window-tree'."
   (if (windowp win)
       (window-width win)
     (let ((edge (cadr win)))
-      (- (third edge) (first edge)))))
+      (- (cl-third edge) (cl-first edge)))))
 
 (defun kys-trans-window-height (win)
   "Obtain the height of window if the argument is `windowp', or calculate the height
@@ -77,7 +79,7 @@ from the second element of output from `window-tree'."
   (if (windowp win)
       (window-height win)
     (let ((edge (cadr win)))
-      (- (fourth edge) (second edge)))))
+      (- (cl-fourth edge) (cl-second edge)))))
 
 (defun kys-list-to-window-tree (conf win set-winbuf)
   "Resume the window from saved list CONF, WIN is `selected-window', on which performs the
@@ -88,7 +90,7 @@ of `kys-load-window-tree', and shouldn't be used directly."
     (let ((newwin (split-window win (cadr conf)
 				(eq (car conf) 'h)))
 	  (others (nthcdr 3 conf)))
-      (kys-list-to-window-tree (third conf) win set-winbuf)
+      (kys-list-to-window-tree (cl-third conf) win set-winbuf)
       (kys-list-to-window-tree (if (> (length others) 2) others (car others)) newwin set-winbuf))))
 
 (defun kys-load-window-tree (conf)
@@ -114,7 +116,7 @@ of `kys-load-window-tree', and shouldn't be used directly."
 		(if (or (string= (substring bname 0 1) " ") (string= (substring bname 0 1) "*"))
 		    nil
 		  bname)))) (buffer-list))))
-  (remove-if (lambda (x) (eq x nil)) buffers)))
+  (cl-remove-if (lambda (x) (eq x nil)) buffers)))
 
 (defun kys-kill-all-buffers ()
   "Just close all the buffers except `*Messages*' and `*scratch*'."
@@ -138,7 +140,7 @@ ben deleted, just open the buffer."
 
 ;; Data structure of session
 (defvar kys-current-session '() "The current session, session is a list (name wlist blist tags)")
-(setq kys-session-list '()) ;; just name and tags
+(defvar kys-session-list '()) ;; just name and tags
 
 ;; DON'T use defstruct
 (defun kys-make-session (sname wlst blst &optional tags)
@@ -149,13 +151,13 @@ ben deleted, just open the buffer."
   `(car ,session))
 
 (defmacro kys-session-wlst (session)
-  `(second ,session))
+  `(cl-second ,session))
 
 (defmacro kys-session-blst (session)
-  `(third ,session))
+  `(cl-third ,session))
 
 (defmacro kys-session-tags (session)
-  `(fourth ,session))
+  `(cl-fourth ,session))
 
 ;; Manage file, supported for persistent
 (defvar kys-directory "~/.emacs.d/kys/" "The directory to save the session files")
@@ -181,7 +183,7 @@ All files are in `kys-directory', and sorted tag names for inner folder."
     (if (null sorted-tags)
 	(expand-file-name (concat sname ".ssn") kys-directory)
       (progn
-	(setf path (reduce (lambda (taga tagb) (concat taga "/" tagb)) sorted-tags))
+	(setf path (cl-reduce (lambda (taga tagb) (concat taga "/" tagb)) sorted-tags))
 	(make-directory (expand-file-name path kys-directory) t)
 	(expand-file-name (concat path "/" sname ".ssn") kys-directory)))))
 
@@ -208,7 +210,7 @@ All files are in `kys-directory', and sorted tag names for inner folder."
 
 (defun kys-find-sname (sname)
   "Find the session name SNAME whether exists in `kys-session-list'."
-  (if (find-if
+  (if (cl-find-if
        (lambda (item) (string= (car item) sname))
        kys-session-list)
       t
@@ -228,9 +230,9 @@ All files are in `kys-directory', and sorted tag names for inner folder."
 (defun kys-read-session-by-name (sname)
   "Given the session name SNAME, read the dumped data from file."
   (let ((session-item
-	 (find-if (lambda (item)
-		    (string= (car item) sname))
-		  kys-session-list)))
+	 (cl-find-if (lambda (item)
+		       (string= (car item) sname))
+		     kys-session-list)))
     (if (null session-item)
 	nil
       (kys-read-session-from-file
@@ -293,7 +295,7 @@ All files are in `kys-directory', and sorted tag names for inner folder."
   (if (or kys-current-session (string< "" sname))
       (progn
 	(setf sname (or (string< "" sname) (kys-session-name kys-current-session)))
-	(let ((session-item (find-if (lambda (item) (string= (car item) sname)) kys-session-list)))
+	(let ((session-item (cl-find-if (lambda (item) (string= (car item) sname)) kys-session-list)))
 	  (delete-file (kys-expand-session-file-name
 			(car session-item)
 			(cdr session-item)))
@@ -320,3 +322,4 @@ All files are in `kys-directory', and sorted tag names for inner folder."
       (push (kys-obtain-item-from-absolute-path-name session-file) kys-session-list))))
 
 (provide 'kys)
+;;; kys.el ends here
