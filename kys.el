@@ -138,7 +138,7 @@ ben deleted, just open the buffer."
 
 ;; Data structure of session
 (defvar kys-current-session '() "The current session, session is a list (name wlist blist tags)")
-(setq kys-session-list '()) ;; just name and tags
+(defvar kys-session-list '()) ;; just name and tags
 
 ;; DON'T use defstruct
 (defun kys-make-session (sname wlst blst &optional tags)
